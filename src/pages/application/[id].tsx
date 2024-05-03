@@ -8,7 +8,7 @@ import { PageContainer } from '@/src/components/PageContainer/PageContainer';
 import { appRoutes } from '@/src/routes';
 import {
     ApplicationItem,
-    CpuUtilisationApiItem,
+    CpuUtilisationApiItem, EnvironmentVariableItem,
     EventApiItem,
     EventItem,
     LineChartDataItem,
@@ -26,6 +26,7 @@ export type ApplicationDashboardProps = {
     cpuUtilisation: Array<LineChartDataItem>;
     seriesData: Array<LineChartSeries>;
     events: Array<EventItem>
+    envVariables: Array<EnvironmentVariableItem>
     defaultId?: string
 };
 export const ApplicationDashboard = ({
@@ -36,6 +37,7 @@ export const ApplicationDashboard = ({
                                          cpuUtilisation,
                                          seriesData,
                                          events,
+                                         envVariables,
                                      }: ApplicationDashboardProps) => {
     const onAppChange = (value: string | null) => {
         if (value) window.location.href = appRoutes.applications.id(value);
@@ -106,7 +108,7 @@ export const ApplicationDashboard = ({
                         <Tabs.Panel value="variables" style={{ flexGrow: 1 }}>
                             <Flex direction="column" gap={4}>
                                 <Flex flex={1}>
-                                    <EnvironmentVariablesManagement />
+                                    <EnvironmentVariablesManagement envVariables={envVariables} />
                                 </Flex>
                             </Flex>
                         </Tabs.Panel>
@@ -206,6 +208,9 @@ export async function getServerSideProps({ params }: GetServerSidePropsContext<{
         }));
     const seriesData = buildSeries(applicationNameMap);
 
+    // fetch env vars on server side securely and mask the values
+    const envVariables:Array<EnvironmentVariableItem> = [];
+
     return {
         props: {
             applications,
@@ -215,6 +220,7 @@ export async function getServerSideProps({ params }: GetServerSidePropsContext<{
             cpuUtilisation: formattedCpuUtilisation,
             seriesData,
             events,
+            envVariables,
         },
     };
 }
